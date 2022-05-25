@@ -1,7 +1,7 @@
 const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
-
+const methodOverride = require('method-override');
 const handlebars = require('express-handlebars');
 const app = express();
 const port = 3000;
@@ -19,7 +19,7 @@ app.use(
     }),
 );
 app.use(express.json());
-
+app.use(methodOverride('_method'))
 app.use(morgan('combined'));
 
 app.engine(
