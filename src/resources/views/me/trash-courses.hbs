@@ -1,9 +1,7 @@
 <div class="mt-4">
   <div>
-    <h3>Khóa học của tôi</h3>
-    {{#if deletedCount}}
-      <a href="/me/trash/courses">Thùng giác ({{deletedCount}})</a>
-    {{/if}}
+    <a href="/me/stored/courses">Danh sách khóa học</a>
+    <h3>Khóa học đã xóa</h3>
   </div>
     <table class="table mt-4">
         <thead>
@@ -11,7 +9,7 @@
                 <th scope="col">#</th>
                 <th scope="col">Tên Khóa Học</th>
                 <th scope="col">Trình độ</th>
-                <th scope="col">Thời gian tạo</th>
+                <th scope="col">Thời gian xóa</th>
                 <th></th>
             </tr>
         </thead>
@@ -21,16 +19,16 @@
                 <th scope="row">{{sum @index 1}}</th>
                 <td>{{this.name}}</td>
                 <td>{{this.level}}</td>
-                <td>{{this.createdAt}}</td>
+                <td>{{this.deletedAt}}</td>
                 <td>
-                    <a href="/courses/{{this._id}}/edit" class="btn btn-link">Sửa</a>
-                    <a href="" class="btn btn-link" data-toggle="modal" data-target="#delete-course-model" data-id="{{this._id}}">Xóa</a>
+                    <a href="" class="btn btn-link btn-restore" data-id="{{this._id}}">Khôi phục</a>
+                    <a href="" class="btn btn-link" data-toggle="modal" data-target="#delete-course-model" data-id="{{this._id}}">Xóa vĩnh viễn</a>
                 </td>
             </tr>
             {{else}}
             <tr>
               <td colspan="5" class="text-center">
-                Bạn chưa đăng khóa học nào. <a href="/courses/create">Đăng khóa học</a>
+                Thùng rác trống <a href="/me/stored/courses">Danh sách khóa học</a>
               </td>
             </tr>
             {{/each}}
@@ -48,7 +46,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <p>Xác nhận xóa khóa học {{this.name}}</p>
+        <p>Hành động này sẽ không thể khôi phục?</p>
       </div>
       <div class="modal-footer">
         <button id="btn-delete-course" type="button" class="btn btn-danger">Xóa bỏ</button>
@@ -59,13 +57,19 @@
 </div>
 
 <form method="POST" id="delete-course-form"></form>
+<form method="POST" id="restore-course-form"></form>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function (){
         var courseId;
         var deleteForm = document.querySelector('#delete-course-form');
+        var restoreForm = document.querySelector('#restore-course-form');
+
+        var btnDeleteCourse = document.querySelector('#btn-delete-course');
         var btnDeleteCourse = document.querySelector('#btn-delete-course');
 
+        var restoreBtn = $('.btn-restore');
         console.log(deleteForm);
         $('#delete-course-model').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget) // Button that triggered the modal
@@ -74,8 +78,15 @@
         })
 
        btnDeleteCourse.onclick = function(){
-           deleteForm.action = '/courses/' + courseId + '/destroy' + '?_method=DELETE';
+           deleteForm.action = '/courses/' + courseId + '/force' + '?_method=DELETE';
            deleteForm.submit();
        }
+
+       restoreBtn.click(function(event){
+         event.preventDefault();
+         var courseId = $(this).data('id');
+         restoreForm.action = '/courses/' + courseId + '/restore' + '?_method=PATCH';
+          restoreForm.submit();
+       })
     })
 </script>
